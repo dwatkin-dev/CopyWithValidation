@@ -6,7 +6,7 @@
         public void CopyAndVerify_ValidSource_CreatesIdenticalDestination()
         {
             // Arrange
-            var copier = new FileCopier();
+            var copier = new FileCopier(new FileHasher());
             string source = Path.GetTempFileName();
             string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             try
@@ -30,7 +30,7 @@
         public void CopyAndVerify_ValidSource_ReturnsTrue()
         {
             // Arrange
-            var copier = new FileCopier();
+            var copier = new FileCopier(new FileHasher());
             string source = Path.GetTempFileName();
             string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             try

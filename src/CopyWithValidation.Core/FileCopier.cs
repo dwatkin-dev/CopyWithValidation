@@ -1,12 +1,12 @@
 ﻿namespace CopyWithValidation.Core;
 
-public class FileCopier
+public class FileCopier(IFileHasher hasher)
 {
+    private readonly IFileHasher _hasher = hasher;
     public bool CopyAndVerify(string source, string destination)
     {
-        var hasher = new FileHasher();
         File.Copy(source, destination);
 
-        return hasher.ComputeHash(source) == hasher.ComputeHash(destination);
+        return _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
     }
 }
