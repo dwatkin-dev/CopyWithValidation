@@ -2,7 +2,7 @@
 
 namespace CopyWithValidation.Core;
 
-public class FileHasher
+public class FileHasher : IFileHasher
 {
     public string ComputeHash(Stream stream) => Convert.ToHexStringLower(SHA256.HashData(stream));
 
