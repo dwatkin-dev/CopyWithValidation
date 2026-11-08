@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using CopyWithValidation.Core;
 
 namespace CopyWithValidation.Core.Tests
 {
