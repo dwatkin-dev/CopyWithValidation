@@ -30,7 +30,8 @@
             Margin="5" 
             Grid.Row="0" 
             Grid.Column="1" 
-            x:Name="SourceTextBox" />
+            x:Name="SourceTextBox"
+            IsEnabled="False" />
         
         <Button 
             x:Name="BrowseSourceButton"
@@ -51,7 +52,8 @@
             Margin="5" 
             Grid.Row="1" 
             Grid.Column="1" 
-            x:Name="DestinationTextBox" />
+            x:Name="DestinationTextBox"
+            IsEnabled="False" />
         
         <Button 
             Margin="5" 
