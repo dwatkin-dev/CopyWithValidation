@@ -99,4 +99,29 @@ public class FileCopierTests
             File.Delete(destination);
         }
     }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_WithProgress_LastReportIs100()
+    {
+        // Arrange
+        var copier = new FileCopier(new FileHasher());
+        var progress = new RecordingProgress<double>();
+        string source = Path.GetTempFileName();
+        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        File.WriteAllText(source, "hello");
+
+        try
+        {
+            // Act
+            await copier.CopyAndVerifyAsync(source, destination, progress);
+
+            // Assert
+            Assert.Equal(100.0, progress.Values.Last());
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
 }
