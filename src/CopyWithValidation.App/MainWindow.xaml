@@ -5,8 +5,76 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CopyWithValidation.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Copy With Validation" Height="220" Width="600">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0 -->
+        <Label 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="0" 
+            Content="Source file" />
+        
+        <TextBox 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="1" 
+            x:Name="SourceTextBox" />
+        
+        <Button 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="2" 
+            Content="Browse..."
+            Click="BrowseSourceButton_Click"/>
+
+        <!-- Row 1 -->
+        <Label 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="0" 
+            Content="Destination folder" />
+        
+        <TextBox 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="1" 
+            x:Name="DestinationTextBox" />
+        
+        <Button 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="2" 
+            Content="Browse..."
+            Click="BrowseDestinationButton_Click" />
+
+        <!-- Row 2 -->
+        <Button 
+            Margin="5"
+            HorizontalAlignment="Left"
+            Grid.Row="2" 
+            Grid.Column="1" 
+            Content="Copy and verify"
+            Click="CopyButton_Click"/>
+
+        <!-- Row 3 -->
+        <TextBlock 
+            Margin="5" 
+            Grid.Row="3" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="3" 
+            x:Name="ResultTextBlock" />
 
     </Grid>
 </Window>
