@@ -9,4 +9,10 @@ public class FileCopier(IFileHasher hasher)
 
         return _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
     }
+
+    public async Task<bool> CopyAndVerifyAsync(string source, string destination)
+    {
+        bool verified = await Task.Run(() => CopyAndVerify(source, destination));
+        return verified;
+    }
 }
