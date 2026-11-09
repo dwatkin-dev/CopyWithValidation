@@ -38,18 +38,21 @@ public partial class MainWindow : Window
     private async void CopyButton_Click(object sender, RoutedEventArgs e)
     {
         var source = SourceTextBox.Text;
-        var destinationFilePath = Path.Combine(DestinationTextBox.Text, Path.GetFileName(SourceTextBox.Text));
+        var destinationFolder = DestinationTextBox.Text;
 
-        if (string.IsNullOrWhiteSpace(SourceTextBox.Text))
+        if (string.IsNullOrWhiteSpace(source))
         {
             ResultTextBlock.Text = "Please choose a source file.";
             return;
         }
-        if (string.IsNullOrWhiteSpace(DestinationTextBox.Text))
+        if (string.IsNullOrWhiteSpace(destinationFolder))
         {
             ResultTextBlock.Text = "Please choose a destination folder.";
             return;
         }
+
+        var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
+        var progress = new Progress<double>(percent => CopyProgressBar.Value = percent);
 
         ResultTextBlock.Text = "Copying...";
         CopyButton.IsEnabled = false;
@@ -58,12 +61,12 @@ public partial class MainWindow : Window
 
         try
         {
-            await Task.Run(() => _copier.CopyAndVerify(source, destinationFilePath));
-            ResultTextBlock.Text = "Copy verified.";
+            bool verified = await Task.Run(() => _copier.CopyAndVerifyAsync(source, destinationFilePath, progress));
+            ResultTextBlock.Text = verified ? "Copy verified." : "Verification FAILED.";
         }
         catch (Exception ex) 
         {
-            ResultTextBlock.Text = "Verification FAILED.";
+            ResultTextBlock.Text = $"Error: {ex.Message}";
         }
         finally
         {
