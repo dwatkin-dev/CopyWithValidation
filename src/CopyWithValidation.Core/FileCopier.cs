@@ -10,9 +10,26 @@ public class FileCopier(IFileHasher hasher)
         return _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
     }
 
-    public Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<double>? progress = null)
+    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<double>? progress = null)
     {
-        progress?.Report(100.0); // ? is null check
-        return Task.Run(() => CopyAndVerify(source, destination));
+        await using FileStream input = File.OpenRead(source);
+        await using FileStream output = new FileStream(destination, FileMode.CreateNew);
+
+        var buffer = new byte[1024 * 1024];
+        int read = 0;
+        long totalRead = 0;
+
+        do
+        {
+            read = await input.ReadAsync(buffer);
+            await output.WriteAsync(buffer.AsMemory(0, read));
+            totalRead += read;
+            progress?.Report(totalRead * 100.0 / input.Length);
+        } while (read > 0);
+
+        input.Close();
+        output.Close();
+
+        return _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
     }
 }
