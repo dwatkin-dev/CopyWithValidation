@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CopyWithValidation.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Copy With Validation" Height="220" Width="600">
     <Grid>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Label Margin="5" Grid.Row="0" Grid.Column="0" Content="Source file"></Label>
+        <Label Margin="5" Grid.Row="1" Grid.Column="0" Content="Destination folder"></Label>
+        <TextBox Margin="5" Grid.Row="0" Grid.Column="1" x:Name="SourceTextBox"></TextBox>
+        <TextBox Margin="5" Grid.Row="1" Grid.Column="1" x:Name="DestinationTextBox"></TextBox>
+        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ResultTextBlock"></TextBlock>
+        <Button Margin="5" Grid.Row="0" Grid.Column="2" Content="Browse..."></Button>
+        <Button Margin="5" Grid.Row="1" Grid.Column="2" Content="Browse..."></Button>
+        <Button Margin="5" Grid.Row="2" Grid.Column="1" Content="Copy and verify"></Button>
     </Grid>
 </Window>
