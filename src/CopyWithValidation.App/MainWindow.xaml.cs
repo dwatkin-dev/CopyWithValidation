@@ -35,8 +35,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void CopyButton_Click(object sender, RoutedEventArgs e)
+    private async void CopyButton_Click(object sender, RoutedEventArgs e)
     {
+        var source = SourceTextBox.Text;
         var destinationFilePath = Path.Combine(DestinationTextBox.Text, Path.GetFileName(SourceTextBox.Text));
 
         if (string.IsNullOrWhiteSpace(SourceTextBox.Text))
@@ -50,14 +51,25 @@ public partial class MainWindow : Window
             return;
         }
 
+        ResultTextBlock.Text = "Copying...";
+        CopyButton.IsEnabled = false;
+        BrowseSourceButton.IsEnabled = false;
+        BrowseDestinationButton.IsEnabled = false;
+
         try
         {
-            _copier.CopyAndVerify(SourceTextBox.Text, destinationFilePath);
+            await Task.Run(() => _copier.CopyAndVerify(source, destinationFilePath));
             ResultTextBlock.Text = "Copy verified.";
         }
         catch (Exception ex) 
         {
             ResultTextBlock.Text = "Verification FAILED.";
+        }
+        finally
+        {
+            CopyButton.IsEnabled = true;
+            BrowseSourceButton.IsEnabled = true;
+            BrowseDestinationButton.IsEnabled = true;
         }
     }
 }

@@ -30,9 +30,11 @@
             Margin="5" 
             Grid.Row="0" 
             Grid.Column="1" 
-            x:Name="SourceTextBox" />
+            x:Name="SourceTextBox"
+            IsEnabled="False" />
         
         <Button 
+            x:Name="BrowseSourceButton"
             Margin="5" 
             Grid.Row="0" 
             Grid.Column="2" 
@@ -50,13 +52,15 @@
             Margin="5" 
             Grid.Row="1" 
             Grid.Column="1" 
-            x:Name="DestinationTextBox" />
+            x:Name="DestinationTextBox"
+            IsEnabled="False" />
         
         <Button 
             Margin="5" 
             Grid.Row="1" 
             Grid.Column="2" 
             Content="Browse..."
+            x:Name="BrowseDestinationButton"
             Click="BrowseDestinationButton_Click" />
 
         <!-- Row 2 -->
@@ -66,6 +70,7 @@
             Grid.Row="2" 
             Grid.Column="1" 
             Content="Copy and verify"
+            x:Name="CopyButton"
             Click="CopyButton_Click"/>
 
         <!-- Row 3 -->
