@@ -36,20 +36,22 @@ public partial class MainWindow : Window
     }
 
     private async void CopyButton_Click(object sender, RoutedEventArgs e)
-    { 
-        if (string.IsNullOrWhiteSpace(SourceTextBox.Text))
+    {
+        var source = SourceTextBox.Text;
+        var destinationFolder = DestinationTextBox.Text;
+
+        if (string.IsNullOrWhiteSpace(source))
         {
             ResultTextBlock.Text = "Please choose a source file.";
             return;
         }
-        if (string.IsNullOrWhiteSpace(DestinationTextBox.Text))
+        if (string.IsNullOrWhiteSpace(destinationFolder))
         {
             ResultTextBlock.Text = "Please choose a destination folder.";
             return;
         }
 
-        var source = SourceTextBox.Text;
-        var destinationFilePath = Path.Combine(DestinationTextBox.Text, Path.GetFileName(source));
+        var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
 
         ResultTextBlock.Text = "Copying...";
         CopyButton.IsEnabled = false;
@@ -63,7 +65,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) 
         {
-            ResultTextBlock.Text = ex.Message;
+            ResultTextBlock.Text = $"Error: {ex.Message}";
         }
         finally
         {
