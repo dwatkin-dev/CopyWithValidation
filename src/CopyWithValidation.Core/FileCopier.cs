@@ -22,9 +22,17 @@ public class FileCopier(IFileHasher hasher)
         await using FileStream input = File.OpenRead(source);
         await using FileStream output = new(destination, FileMode.CreateNew);
 
-        var buffer = new byte[1024 * 1024];
-        long totalRead = 0;
         long totalBytes = input.Length;
+
+        // Nothing to copy, but the caller still needs to see 100%
+        if (totalBytes == 0)
+        {
+            progress?.Report(100.0);
+            return;
+        }
+
+        long totalRead = 0;
+        var buffer = new byte[1024 * 1024];
 
         while (true)
         {
