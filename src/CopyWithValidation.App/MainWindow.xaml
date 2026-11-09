@@ -36,7 +36,8 @@
             Margin="5" 
             Grid.Row="0" 
             Grid.Column="2" 
-            Content="Browse..." />
+            Content="Browse..."
+            Click="BrowseSourceButton_Click"/>
 
         <!-- Row 1 -->
         <Label 
@@ -55,7 +56,8 @@
             Margin="5" 
             Grid.Row="1" 
             Grid.Column="2" 
-            Content="Browse..." />
+            Content="Browse..."
+            Click="BrowseDestinationButton_Click" />
 
         <!-- Row 2 -->
         <Button 
