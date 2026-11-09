@@ -18,13 +18,60 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Label Margin="5" Grid.Row="0" Grid.Column="0" Content="Source file"></Label>
-        <Label Margin="5" Grid.Row="1" Grid.Column="0" Content="Destination folder"></Label>
-        <TextBox Margin="5" Grid.Row="0" Grid.Column="1" x:Name="SourceTextBox"></TextBox>
-        <TextBox Margin="5" Grid.Row="1" Grid.Column="1" x:Name="DestinationTextBox"></TextBox>
-        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" x:Name="ResultTextBlock"></TextBlock>
-        <Button Margin="5" Grid.Row="0" Grid.Column="2" Content="Browse..."></Button>
-        <Button Margin="5" Grid.Row="1" Grid.Column="2" Content="Browse..."></Button>
-        <Button Margin="5" Grid.Row="2" Grid.Column="1" Content="Copy and verify"></Button>
+
+        <!-- Row 0 -->
+        <Label 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="0" 
+            Content="Source file" />
+        
+        <TextBox 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="1" 
+            x:Name="SourceTextBox" />
+        
+        <Button 
+            Margin="5" 
+            Grid.Row="0" 
+            Grid.Column="2" 
+            Content="Browse..." />
+
+        <!-- Row 1 -->
+        <Label 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="0" 
+            Content="Destination folder" />
+        
+        <TextBox 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="1" 
+            x:Name="DestinationTextBox" />
+        
+        <Button 
+            Margin="5" 
+            Grid.Row="1" 
+            Grid.Column="2" 
+            Content="Browse..." />
+
+        <!-- Row 2 -->
+        <Button 
+            Margin="5"
+            HorizontalAlignment="Left"
+            Grid.Row="2" 
+            Grid.Column="1" 
+            Content="Copy and verify" />
+
+        <!-- Row 3 -->
+        <TextBlock 
+            Margin="5" 
+            Grid.Row="3" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="3" 
+            x:Name="ResultTextBlock" />
+
     </Grid>
 </Window>
