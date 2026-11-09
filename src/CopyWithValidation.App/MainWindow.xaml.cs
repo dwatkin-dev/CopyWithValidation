@@ -52,6 +52,7 @@ public partial class MainWindow : Window
         }
 
         var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
+        var progress = new Progress<double>(percent => CopyProgressBar.Value = percent);
 
         ResultTextBlock.Text = "Copying...";
         CopyButton.IsEnabled = false;
@@ -60,7 +61,7 @@ public partial class MainWindow : Window
 
         try
         {
-            bool verified = await Task.Run(() => _copier.CopyAndVerify(source, destinationFilePath));
+            bool verified = await Task.Run(() => _copier.CopyAndVerifyAsync(source, destinationFilePath, progress));
             ResultTextBlock.Text = verified ? "Copy verified." : "Verification FAILED.";
         }
         catch (Exception ex) 
