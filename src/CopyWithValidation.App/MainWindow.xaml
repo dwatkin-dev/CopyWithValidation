@@ -65,7 +65,8 @@
             HorizontalAlignment="Left"
             Grid.Row="2" 
             Grid.Column="1" 
-            Content="Copy and verify" />
+            Content="Copy and verify"
+            Click="CopyButton_Click"/>
 
         <!-- Row 3 -->
         <TextBlock 
