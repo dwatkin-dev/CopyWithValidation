@@ -1,4 +1,5 @@
-﻿using CopyWithValidation.Core.Tests.Helpers;
+﻿using CopyWithValidation.Core.Tests.Fakes;
+using CopyWithValidation.Core.Tests.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -76,5 +77,24 @@ public class FileHasherTests
 
         // Assert
         Assert.Equal(expected, hash);
+    }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task ComputeHashAsync_AnySize_LastProgressReportIs100(int size)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var hasher = new FileHasher();
+        var progress = new RecordingProgress<double>();
+        files.WriteSource(size);
+
+        // Act
+        await hasher.ComputeHashAsync(files.Source, progress);
+
+        // Assert
+        Assert.Equal(100.0, progress.Values.Last());
     }
 }

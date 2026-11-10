@@ -12,9 +12,10 @@ public class FileHasher : IFileHasher
         return ComputeHash(stream);
     }
 
-    public async Task<string> ComputeHashAsync(string source)
+    public async Task<string> ComputeHashAsync(string path, IProgress<double>? progress = null)
     {
-        await using FileStream stream = File.OpenRead(source);
+        progress?.Report(100.0);
+        await using FileStream stream = File.OpenRead(path);
         byte[] data = await SHA256.HashDataAsync(stream);
         return Convert.ToHexStringLower(data);
     }
