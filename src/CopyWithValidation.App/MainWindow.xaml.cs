@@ -55,9 +55,7 @@ public partial class MainWindow : Window
         var progress = new Progress<double>(percent => CopyProgressBar.Value = percent);
 
         ResultTextBlock.Text = "Copying...";
-        CopyButton.IsEnabled = false;
-        BrowseSourceButton.IsEnabled = false;
-        BrowseDestinationButton.IsEnabled = false;
+        EnableUI(false);
 
         try
         {
@@ -70,9 +68,14 @@ public partial class MainWindow : Window
         }
         finally
         {
-            CopyButton.IsEnabled = true;
-            BrowseSourceButton.IsEnabled = true;
-            BrowseDestinationButton.IsEnabled = true;
+            EnableUI(true);
         }
+    }
+
+    private void EnableUI(bool enable)
+    {
+        CopyButton.IsEnabled = enable;
+        BrowseSourceButton.IsEnabled = enable;
+        BrowseDestinationButton.IsEnabled = enable;
     }
 }
