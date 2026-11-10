@@ -38,7 +38,7 @@ public class FileHasherTests
     {
         // Arrange
         var hasher = new FileHasher();
-        var files = new TempFiles();
+        using var files = new TempFiles();
 
         // Act
         string hash = hasher.ComputeHash(files.FileContainingAbc());
@@ -52,7 +52,7 @@ public class FileHasherTests
     {
         // Arrange
         var hasher = new FileHasher();
-        var files = new TempFiles();
+        using var files = new TempFiles();
 
         // Act & Assert
         Assert.Throws<FileNotFoundException>(() => hasher.ComputeHash(files.Source));
