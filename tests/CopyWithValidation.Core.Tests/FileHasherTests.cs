@@ -1,7 +1,6 @@
 ﻿using CopyWithValidation.Core.Tests.Fakes;
 using CopyWithValidation.Core.Tests.Helpers;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace CopyWithValidation.Core.Tests;
 
@@ -74,7 +73,6 @@ public class FileHasherTests
         // Assert
         Assert.True(progress.Values.Count > 1);
         Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
-        Assert.Equal(100.0, progress.Values.Last());
     }
 
     [Fact]

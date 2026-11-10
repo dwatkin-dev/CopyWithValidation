@@ -44,5 +44,6 @@ public class FileCopier(IFileHasher hasher)
         return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
-    private async Task<bool> VerifyAsync(string sourceHash, string destination) => sourceHash == await hasher.ComputeHashAsync(destination);
+    private async Task<bool> VerifyAsync(string sourceHash, string destination) 
+        => sourceHash == await hasher.ComputeHashAsync(destination);
 }

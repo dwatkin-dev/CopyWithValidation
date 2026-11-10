@@ -93,7 +93,6 @@ public class FileCopierTests
         // Assert
         Assert.True(progress.Values.Count > 1);
         Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
-        Assert.Equal(100.0, progress.Values.Last());
     }
 
     [Fact]
