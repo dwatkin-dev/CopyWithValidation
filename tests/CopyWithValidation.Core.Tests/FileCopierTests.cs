@@ -223,4 +223,31 @@ public class FileCopierTests
             File.Delete(destination);
         }
     }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_MultiBufferFile_ReturnsTrue()
+    {
+        // Arrange
+        var copier = new FileCopier(new FileHasher());
+        var progress = new RecordingProgress<double>();
+        string source = Path.GetTempFileName();
+        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var data = new byte[1024 * 1024 + 512 * 1024];   // 1.5 MB
+        new Random(42).NextBytes(data);                  // same "random" bytes every run
+        File.WriteAllBytes(source, data);
+
+        try
+        {
+            // Act
+            bool result = await copier.CopyAndVerifyAsync(source, destination, progress);
+
+            // Assert
+            Assert.True(result);
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
 }
