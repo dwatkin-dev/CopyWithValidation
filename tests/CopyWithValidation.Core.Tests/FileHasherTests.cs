@@ -1,4 +1,5 @@
 ﻿using CopyWithValidation.Core.Tests.Helpers;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace CopyWithValidation.Core.Tests;
@@ -56,5 +57,24 @@ public class FileHasherTests
 
         // Act & Assert
         Assert.Throws<FileNotFoundException>(() => hasher.ComputeHash(files.Source));
+    }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task ComputeHashAsync_AnySize_MatchesSha256OfContents(int size)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var hasher = new FileHasher();
+        byte[] data = files.WriteSource(size);
+        string expected = Convert.ToHexStringLower(SHA256.HashData(data));
+
+        // Act
+        string hash = await hasher.ComputeHashAsync(files.Source);
+
+        // Assert
+        Assert.Equal(expected, hash);
     }
 }

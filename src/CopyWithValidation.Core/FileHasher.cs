@@ -11,4 +11,11 @@ public class FileHasher : IFileHasher
         using FileStream stream = File.OpenRead(path);
         return ComputeHash(stream);
     }
+
+    public async Task<string> ComputeHashAsync(string source)
+    {
+        await using FileStream stream = File.OpenRead(source);
+        byte[] data = await SHA256.HashDataAsync(stream);
+        return Convert.ToHexStringLower(data);
+    }
 }
