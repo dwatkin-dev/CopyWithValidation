@@ -5,7 +5,7 @@ namespace CopyWithValidation.Core.Tests;
 public class FileCopierTests
 {
     [Fact]
-    public async Task CopyAndVerifyAsync_LargeFile_ReportsIncreasingProgress()
+    public async Task CopyAndVerifyAsync_MultiBufferFile_ReportsIncreasingProgressss()
     {
         // Arrange
         var copier = new FileCopier(new FileHasher());
