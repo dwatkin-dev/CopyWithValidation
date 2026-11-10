@@ -64,6 +64,7 @@ public class FileCopierTests
         {
             // Act & Assert
             await Assert.ThrowsAsync<FileNotFoundException>(() => copier.CopyAndVerifyAsync(source, destination));
+            Assert.False(File.Exists(destination));
         }
         finally
         {
