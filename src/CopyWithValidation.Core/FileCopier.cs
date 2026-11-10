@@ -1,4 +1,6 @@
-﻿namespace CopyWithValidation.Core;
+﻿using System.Security.Cryptography;
+
+namespace CopyWithValidation.Core;
 
 public class FileCopier(IFileHasher hasher)
 {
@@ -7,20 +9,21 @@ public class FileCopier(IFileHasher hasher)
     {
         File.Copy(source, destination);
 
-        return Verify(source, destination);
+        return _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
     }
 
     public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<double>? progress = null)
     {
-        await CopyWithProgressAsync(source, destination, progress);
+        string sourceHash = await CopyWithProgressAsync(source, destination, progress);
 
-        return Verify(source, destination);
+        return Verify(sourceHash, destination);
     }
 
-    private async Task CopyWithProgressAsync(string source, string destination, IProgress<double>? progress)
+    private async Task<string> CopyWithProgressAsync(string source, string destination, IProgress<double>? progress)
     {
         await using FileStream input = File.OpenRead(source);
         await using FileStream output = new(destination, FileMode.CreateNew);
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
         long totalBytes = input.Length;
 
@@ -28,7 +31,7 @@ public class FileCopier(IFileHasher hasher)
         if (totalBytes == 0)
         {
             progress?.Report(100.0);
-            return;
+            return "";
         }
 
         long totalRead = 0;
@@ -40,11 +43,14 @@ public class FileCopier(IFileHasher hasher)
             if (read == 0) break;
 
             await output.WriteAsync(buffer.AsMemory(0, read));
+            hash.AppendData(buffer, 0, read);
 
             totalRead += read;
             progress?.Report(totalRead * 100.0 / totalBytes);
         }
+
+        return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
-    private bool Verify(string source, string destination) => _hasher.ComputeHash(source) == _hasher.ComputeHash(destination);
+    private bool Verify(string sourceHash, string destination) => sourceHash == _hasher.ComputeHash(destination);
 }

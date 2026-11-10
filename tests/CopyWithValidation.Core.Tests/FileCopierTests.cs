@@ -175,4 +175,28 @@ public class FileCopierTests
             File.Delete(destination);
         }
     }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_DestinationHashDiffers_ReturnsFalse()
+    {
+        // Arrange
+        var copier = new FileCopier(new WrongHashFakeHasher());
+        string source = Path.GetTempFileName();
+        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        File.WriteAllText(source, "abc");
+
+        try
+        {
+            // Act
+            bool result = await copier.CopyAndVerifyAsync(source, destination);
+
+            // Assert
+            Assert.False(result);
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
 }
