@@ -1,4 +1,5 @@
 ﻿using CopyWithValidation.Core.Tests.Fakes;
+using System.Drawing;
 
 namespace CopyWithValidation.Core.Tests;
 
@@ -23,6 +24,46 @@ public class FileCopierTests
             Assert.True(progress.Values.Count > 1);
             Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
             Assert.Equal(100.0, progress.Values.Last());
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_DestinationExists_ThrowsIOException()
+    {
+        // Arrange
+        var copier = new FileCopier(new FileHasher());
+        string source = Path.GetTempFileName();
+        string destination = source;
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<IOException>(() => copier.CopyAndVerifyAsync(source, destination));
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_SourceMissing_ThrowsFileNotFoundException()
+    {
+        // Arrange
+        var copier = new FileCopier(new FileHasher());
+        string source = Path.GetRandomFileName();
+        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<FileNotFoundException>(() => copier.CopyAndVerifyAsync(source, destination));
         }
         finally
         {
