@@ -1,253 +1,123 @@
 ﻿using CopyWithValidation.Core.Tests.Fakes;
+using CopyWithValidation.Core.Tests.Helpers;
 
 namespace CopyWithValidation.Core.Tests;
 
 public class FileCopierTests
 {
-    [Fact]
-    public void CopyAndVerify_ValidSource_CreatesIdenticalDestination()
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_AnySize_DestinationMatchesSource(int size)
     {
         // Arrange
+        using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        try
-        {
-            File.WriteAllText(source, "hello");
+        byte[] data = files.WriteSource(size);
 
-            // Act
-            copier.CopyAndVerify(source, destination);
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination);
 
-            // Assert
-            Assert.Equal("hello", File.ReadAllText(destination));
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
+        // Assert
+        Assert.Equal(data, File.ReadAllBytes(files.Destination));
     }
 
-    [Fact]
-    public void CopyAndVerify_ValidSource_ReturnsTrue()
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_MatchingCopy_ReturnsTrue(int size)
     {
         // Arrange
+        using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        try
-        {
-            File.WriteAllText(source, "hello");
+        files.WriteSource(size);
 
-            // Act
-            bool result = copier.CopyAndVerify(source, destination);
+        // Act
+        bool result = await copier.CopyAndVerifyAsync(files.Source, files.Destination);
 
-            // Assert
-            Assert.True(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
+        // Assert
+        Assert.True(result);
     }
 
-    [Fact]
-    public void CopyAndVerify_HashesDiffer_ReturnsFalse()
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_DestinationHashDiffers_ReturnsFalse(int size)
     {
         // Arrange
-        var copier = new FileCopier(new MismatchingFakeHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        try
-        {
-            File.WriteAllText(source, "hello");
-
-            // Act
-            bool result = copier.CopyAndVerify(source, destination);
-
-            // Assert
-            Assert.False(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
-    public async Task CopyAndVerifyAsync_ValidFile_ReturnsTrue()
-    {
-        // Arrange
-        var copier = new FileCopier(new FileHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        File.WriteAllText(source, "hello");
-
-        try
-        {
-            // Act
-            bool result = await copier.CopyAndVerifyAsync(source, destination);
-
-            // Assert
-            Assert.True(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
-    public async Task CopyAndVerifyAsync_WithProgress_LastReportIs100()
-    {
-        // Arrange
-        var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        File.WriteAllText(source, "hello");
-
-        try
-        {
-            // Act
-            await copier.CopyAndVerifyAsync(source, destination, progress);
-
-            // Assert
-            Assert.Equal(100.0, progress.Values.Last());
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
-    public async Task CopyAndVerifyAsync_LargeFile_ReportsIncreasingProgress()
-    {
-        // Arrange
-        var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        File.WriteAllBytes(source, new byte[10 * 1024 * 1024]);   // 10 MB of zeros
-
-        try
-        {
-            // Act
-            await copier.CopyAndVerifyAsync(source, destination, progress);
-
-            // Assert
-            Assert.True(progress.Values.Count > 1);
-            Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
-            Assert.Equal(100.0, progress.Values.Last());
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
-    public async Task CopyAndVerifyAsync_EmptyFile_LastReport_Is100()
-    {
-        // Arrange
-        var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
-        string source = Path.GetTempFileName(); // GetTempFileName creates an empty file
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
-        try
-        {
-            // Act
-            await copier.CopyAndVerifyAsync(source, destination, progress);
-
-            // Assert
-            Assert.Equal(100.0, progress.Values.Last());
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
-    public async Task CopyAndVerifyAsync_DestinationHashDiffers_ReturnsFalse()
-    {
-        // Arrange
+        using var files = new TempFiles();
         var copier = new FileCopier(new WrongHashFakeHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        File.WriteAllText(source, "abc");
+        files.WriteSource(size);
 
-        try
-        {
-            // Act
-            bool result = await copier.CopyAndVerifyAsync(source, destination);
+        // Act
+        bool result = await copier.CopyAndVerifyAsync(files.Source, files.Destination);
 
-            // Assert
-            Assert.False(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
+        // Assert
+        Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_AnySize_LastProgressReportIs100(int size)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var copier = new FileCopier(new FileHasher());
+        var progress = new RecordingProgress<double>();
+        files.WriteSource(size);
+
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
+
+        // Assert
+        Assert.Equal(100.0, progress.Values.Last());
     }
 
     [Fact]
-    public async Task CopyAndVerifyAsync_EmptyFile_ReturnsTrue()
+    public async Task CopyAndVerifyAsync_MultiBufferFile_ReportsIncreasingProgress()
     {
         // Arrange
+        using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
         var progress = new RecordingProgress<double>();
-        string source = Path.GetTempFileName(); // GetTempFileName creates an empty file
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        files.WriteSource(10 * 1024 * 1024);   // 10 MB
 
-        try
-        {
-            // Act
-            bool result = await copier.CopyAndVerifyAsync(source, destination, progress);
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
 
-            // Assert
-            Assert.True(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
+        // Assert
+        Assert.True(progress.Values.Count > 1);
+        Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
+        Assert.Equal(100.0, progress.Values.Last());
     }
 
     [Fact]
-    public async Task CopyAndVerifyAsync_MultiBufferFile_ReturnsTrue()
+    public async Task CopyAndVerifyAsync_DestinationExists_ThrowsIOException()
     {
         // Arrange
+        using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        var data = new byte[1024 * 1024 + 512 * 1024];   // 1.5 MB
-        new Random(42).NextBytes(data);                  // same "random" bytes every run
-        File.WriteAllBytes(source, data);
+        files.WriteSource(5);
+        File.WriteAllText(files.Destination, "");   // destination already exists
 
-        try
-        {
-            // Act
-            bool result = await copier.CopyAndVerifyAsync(source, destination, progress);
+        // Act & Assert
+        await Assert.ThrowsAsync<IOException>(() => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+    }
 
-            // Assert
-            Assert.True(result);
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
+    [Fact]
+    public async Task CopyAndVerifyAsync_SourceMissing_ThrowsFileNotFoundException()
+    {
+        // Arrange
+        using var files = new TempFiles();   // WriteSource not called, so no source file
+        var copier = new FileCopier(new FileHasher());
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(() => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+        Assert.False(File.Exists(files.Destination));
     }
 }
