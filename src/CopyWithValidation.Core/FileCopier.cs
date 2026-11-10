@@ -31,7 +31,7 @@ public class FileCopier(IFileHasher hasher)
         if (totalBytes == 0)
         {
             progress?.Report(100.0);
-            return _hasher.ComputeHash(source);
+            return Convert.ToHexStringLower(hash.GetHashAndReset());
         }
 
         long totalRead = 0;
