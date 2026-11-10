@@ -1,11 +1,12 @@
-﻿using System.Text;
+﻿using CopyWithValidation.Core.Tests.Helpers;
+using System.Text;
 
 namespace CopyWithValidation.Core.Tests;
 
 public class FileHasherTests
 {
     [Fact]
-    public void ComputerHash_EmptyStream_ReturnsKnownSha256()
+    public void ComputeHash_EmptyStream_ReturnsKnownSha256()
     {
         // Arrange
         var hasher = new FileHasher();
@@ -19,7 +20,7 @@ public class FileHasherTests
     }
 
     [Fact]
-    public void ComputeHash_Abc_ReturnsKnownSh256()
+    public void ComputeHash_Abc_ReturnsKnownSha256()
     {
         // Arrange
         var hasher = new FileHasher();
@@ -37,21 +38,13 @@ public class FileHasherTests
     {
         // Arrange
         var hasher = new FileHasher();
-        string path = Path.GetTempFileName();
-        try
-        {
-            File.WriteAllText(path, "abc");
+        var files = new TempFiles();
 
-            // Act
-            string hash = hasher.ComputeHash(path);
+        // Act
+        string hash = hasher.ComputeHash(files.FileContainingAbc());
 
-            // Assert
-            Assert.Equal("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", hash);
-        }
-        finally
-        {
-            File.Delete(path);
-        }
+        // Assert
+        Assert.Equal("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", hash);
     }
 
     [Fact]
@@ -59,9 +52,9 @@ public class FileHasherTests
     {
         // Arrange
         var hasher = new FileHasher();
-        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var files = new TempFiles();
 
         // Act & Assert
-        Assert.Throws<FileNotFoundException>(() => hasher.ComputeHash(path));
+        Assert.Throws<FileNotFoundException>(() => hasher.ComputeHash(files.Source));
     }
 }
