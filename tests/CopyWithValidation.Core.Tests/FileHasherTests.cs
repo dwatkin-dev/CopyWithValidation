@@ -97,4 +97,22 @@ public class FileHasherTests
         // Assert
         Assert.Equal(100.0, progress.Values.Last());
     }
+
+    [Fact]
+    public async Task ComputeHashAsync_MultiBufferFile_ReportsIncreasingProgress()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var hasher = new FileHasher();
+        var progress = new RecordingProgress<double>();
+        files.WriteSource(10 * 1024 * 1024);   // 10 MB
+
+        // Act
+        await hasher.ComputeHashAsync(files.Source, progress);
+
+        // Assert
+        Assert.True(progress.Values.Count > 1);
+        Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
+        Assert.Equal(100.0, progress.Values.Last());
+    }
 }
