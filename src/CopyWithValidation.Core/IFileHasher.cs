@@ -2,5 +2,5 @@
 
 public interface IFileHasher
 {
-    public string ComputeHash(string path);
+    string ComputeHash(string path);
 }

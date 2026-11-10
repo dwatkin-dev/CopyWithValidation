@@ -13,6 +13,12 @@ public class TempFiles : IDisposable
         return data;
     }
 
+    public string FileContainingAbc()
+    {
+        File.WriteAllText(Source, "abc");
+        return Source;
+    }
+
     public void Dispose()
     {
         File.Delete(Source);

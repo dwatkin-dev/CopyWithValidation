@@ -4,8 +4,6 @@ namespace CopyWithValidation.Core;
 
 public class FileCopier(IFileHasher hasher)
 {
-    private readonly IFileHasher _hasher = hasher;
-
     public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<double>? progress = null)
     {
         string sourceHash = await CopyWithProgressAsync(source, destination, progress);
@@ -46,5 +44,5 @@ public class FileCopier(IFileHasher hasher)
         return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
-    private bool Verify(string sourceHash, string destination) => sourceHash == _hasher.ComputeHash(destination);
+    private bool Verify(string sourceHash, string destination) => sourceHash == hasher.ComputeHash(destination);
 }
