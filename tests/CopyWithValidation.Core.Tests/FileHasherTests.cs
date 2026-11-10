@@ -115,4 +115,15 @@ public class FileHasherTests
         Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
         Assert.Equal(100.0, progress.Values.Last());
     }
+
+    [Fact]
+    public async Task ComputeHashAsync_FileDoesNotExist_ThrowsFileNotFoundException()
+    {
+        // Arrange
+        using var files = new TempFiles();   // WriteSource not called, so no source file
+        var hasher = new FileHasher();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(() => hasher.ComputeHashAsync(files.Source));
+    }
 }
