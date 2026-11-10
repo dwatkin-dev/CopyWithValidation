@@ -5,30 +5,6 @@ namespace CopyWithValidation.Core.Tests;
 public class FileCopierTests
 {
     [Fact]
-    public void CopyAndVerify_ValidSource_CreatesIdenticalDestination()
-    {
-        // Arrange
-        var copier = new FileCopier(new FileHasher());
-        string source = Path.GetTempFileName();
-        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        try
-        {
-            File.WriteAllText(source, "hello");
-
-            // Act
-            copier.CopyAndVerify(source, destination);
-
-            // Assert
-            Assert.Equal("hello", File.ReadAllText(destination));
-        }
-        finally
-        {
-            File.Delete(source);
-            File.Delete(destination);
-        }
-    }
-
-    [Fact]
     public void CopyAndVerify_ValidSource_ReturnsTrue()
     {
         // Arrange
@@ -243,6 +219,36 @@ public class FileCopierTests
 
             // Assert
             Assert.True(result);
+        }
+        finally
+        {
+            File.Delete(source);
+            File.Delete(destination);
+        }
+    }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_AnySize_DestinationMatchesSource(int size)
+    {
+        // Arrange
+        var copier = new FileCopier(new FileHasher());
+        string source = Path.GetTempFileName();
+        string destination = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+        try
+        {
+            var data = new byte[size];
+            new Random(42).NextBytes(data);
+            File.WriteAllBytes(source, data);
+
+            // Act
+            await copier.CopyAndVerifyAsync(source, destination);
+
+            // Assert
+            Assert.Equal(data, File.ReadAllBytes(destination));
         }
         finally
         {
