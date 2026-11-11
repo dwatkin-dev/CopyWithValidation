@@ -52,17 +52,21 @@ public partial class MainWindow : Window
         }
 
         var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
-        var progress = new Progress<double>(percent => CopyProgressBar.Value = percent);
 
-        ResultTextBlock.Text = "Copying...";
+        var progress = new Progress<CopyProgress>(p =>
+        {
+            CopyProgressBar.Value = p.Percent;
+            ResultTextBlock.Text = $"{p.Phase}...";
+        });
+
         EnableUI(false);
 
         try
         {
-            bool verified = await Task.Run(() => _copier.CopyAndVerifyAsync(source, destinationFilePath, progress));
+            bool verified = await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress);
             ResultTextBlock.Text = verified ? "Copy verified." : "Verification FAILED.";
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             ResultTextBlock.Text = $"Error: {ex.Message}";
         }

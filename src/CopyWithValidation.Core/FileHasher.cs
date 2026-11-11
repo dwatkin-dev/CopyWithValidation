@@ -1,14 +1,11 @@
-﻿using System.Security.Cryptography;
-
-namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core;
 
 public class FileHasher : IFileHasher
 {
-    public string ComputeHash(Stream stream) => Convert.ToHexStringLower(SHA256.HashData(stream));
-
-    public string ComputeHash(string path)
+    public async Task<string> ComputeHashAsync(string path, IProgress<double>? progress = null)
     {
-        using FileStream stream = File.OpenRead(path);
-        return ComputeHash(stream);
+        await using FileStream stream = File.OpenRead(path);
+
+        return await StreamHasher.HashAsync(stream, progress).ConfigureAwait(false);
     }
 }

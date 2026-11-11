@@ -2,5 +2,5 @@
 
 public interface IFileHasher
 {
-    string ComputeHash(string path);
+    Task<string> ComputeHashAsync(string path, IProgress<double>? progress = null);
 }
