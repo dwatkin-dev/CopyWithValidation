@@ -59,26 +59,6 @@ public class FileCopierTests
         Assert.False(result);
     }
 
-    [Theory]
-    [InlineData(0)]                        // empty
-    [InlineData(5)]                        // one partial buffer
-    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
-    public async Task CopyAndVerifyAsync_AnySize_LastProgressReportIs100(int size)
-    {
-        // Arrange
-        using var files = new TempFiles();
-        var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<CopyProgress>();
-        files.WriteSource(size);
-
-        // Act
-        await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
-        var percents = progress.Values.Select(r => r.Percent).ToList();
-
-        // Assert
-        Assert.Equal(100.0, percents.Last());
-    }
-
     [Fact]
     public async Task CopyAndVerifyAsync_MultiBufferFile_ReportsProgressInOrder()
     {
@@ -138,12 +118,15 @@ public class FileCopierTests
         Assert.Equal(CopyPhase.Copying, progress.Values[0].Phase);
     }
 
-    [Fact]
-    public async Task CopyAndVerifyAsync_AnyFile_LastReportIsVerifying100()
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
+    public async Task CopyAndVerifyAsync_AnyFile_LastReportIsVerifying100(int size)
     {
         // Arrange
         using var files = new TempFiles();
-        files.WriteSource(1024);
+        files.WriteSource(size);
         var progress = new RecordingProgress<CopyProgress>();
         var copier = new FileCopier(new FileHasher());
 
