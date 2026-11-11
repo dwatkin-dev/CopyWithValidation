@@ -4,9 +4,9 @@ namespace CopyWithValidation.Core;
 
 public class FileCopier(IFileHasher hasher)
 {
-    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<double>? progress = null)
+    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null)
     {
-        string sourceHash = await CopyWithProgressAsync(source, destination, progress);
+        string sourceHash = await CopyWithProgressAsync(source, destination, null);
 
         return await VerifyAsync(sourceHash, destination);
     }

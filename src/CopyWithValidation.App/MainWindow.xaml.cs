@@ -52,7 +52,7 @@ public partial class MainWindow : Window
         }
 
         var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
-        var progress = new Progress<double>(percent => CopyProgressBar.Value = percent);
+        var progress = new Progress<CopyProgress>(p => CopyProgressBar.Value = p.Percent);
 
         ResultTextBlock.Text = "Copying...";
         EnableUI(false);

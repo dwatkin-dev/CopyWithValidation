@@ -68,14 +68,15 @@ public class FileCopierTests
         // Arrange
         using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
+        var progress = new RecordingProgress<CopyProgress>();
         files.WriteSource(size);
 
         // Act
         await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
+        var percents = progress.Values.Select(r => r.Percent).ToList();
 
         // Assert
-        Assert.Equal(100.0, progress.Values.Last());
+        Assert.Equal(100.0, percents.Last());
     }
 
     [Fact]
@@ -84,15 +85,16 @@ public class FileCopierTests
         // Arrange
         using var files = new TempFiles();
         var copier = new FileCopier(new FileHasher());
-        var progress = new RecordingProgress<double>();
+        var progress = new RecordingProgress<CopyProgress>();
         files.WriteSource(10 * 1024 * 1024);   // 10 MB
 
         // Act
         await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
+        var percents = progress.Values.Select(r => r.Percent).ToList();
 
         // Assert
-        Assert.True(progress.Values.Count > 1);
-        Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
+        Assert.True(percents.Count > 1);
+        Assert.Equal(percents.Order(), percents);   // LINQ: sorted copy
     }
 
     [Fact]
@@ -118,5 +120,18 @@ public class FileCopierTests
         // Act & Assert
         await Assert.ThrowsAsync<FileNotFoundException>(() => copier.CopyAndVerifyAsync(files.Source, files.Destination));
         Assert.False(File.Exists(files.Destination));
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_AnyFile_FirstReportIsCopying()
+    {
+        using var files = new TempFiles();
+        files.WriteSource(1024);
+        var progress = new RecordingProgress<CopyProgress>();
+        var copier = new FileCopier(new FileHasher());
+
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
+
+        Assert.Equal(CopyPhase.Copying, progress.Values[0].Phase);
     }
 }
