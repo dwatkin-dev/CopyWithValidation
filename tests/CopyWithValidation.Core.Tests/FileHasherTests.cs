@@ -4,6 +4,11 @@ using System.Security.Cryptography;
 
 namespace CopyWithValidation.Core.Tests;
 
+/// <summary>Tests for FileHasher: correct hashes, progress reports, and a missing file.</summary>
+// Two ways of knowing the right answer:
+// - Known-answer test: a value published elsewhere ("abc" -> ba7816bf...). Catches mistakes
+//   an oracle would share (e.g. using the wrong algorithm in both).
+// - Oracle: a trusted second way to compute it (SHA256.HashData), so any data can be checked.
 public class FileHasherTests
 {
     [Fact]
@@ -30,6 +35,7 @@ public class FileHasherTests
         using var files = new TempFiles();
         var hasher = new FileHasher();
         byte[] data = files.WriteSource(size);
+        // The oracle: .NET's one-shot SHA-256 of the same bytes
         string expected = Convert.ToHexStringLower(SHA256.HashData(data));
 
         // Act
@@ -55,7 +61,7 @@ public class FileHasherTests
         await hasher.ComputeHashAsync(files.Source, progress);
 
         // Assert
-        Assert.Equal(100.0, progress.Values.Last());
+        Assert.Equal(100.0, progress.Values.Last());   // Last() is LINQ
     }
 
     [Fact]
@@ -71,7 +77,7 @@ public class FileHasherTests
         await hasher.ComputeHashAsync(files.Source, progress);
 
         // Assert
-        Assert.True(progress.Values.Count > 1);
+        Assert.True(progress.Values.Count > 1);   // more than one report, or "increasing" proves nothing
         Assert.Equal(progress.Values.Order(), progress.Values);   // LINQ: sorted copy
     }
 
