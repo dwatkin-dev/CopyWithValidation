@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core;
 
 public class FileHasher : IFileHasher
 {

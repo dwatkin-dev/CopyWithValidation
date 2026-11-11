@@ -10,7 +10,7 @@ internal static class StreamHasher
 
         long totalBytes = input.Length;
 
-        // Nothing to copy, but the caller still needs to see 100%
+        // Empty input: the caller still needs to see 100%
         if (totalBytes == 0)
         {
             progress?.Report(100.0);
