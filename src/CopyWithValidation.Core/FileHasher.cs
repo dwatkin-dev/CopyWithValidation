@@ -23,7 +23,7 @@ public class FileHasher : IFileHasher
 
         while (true)
         {
-            int read = await stream.ReadAsync(buffer);
+            int read = await stream.ReadAsync(buffer).ConfigureAwait(false);
             if (read == 0) break;
 
             hash.AppendData(buffer, 0, read);

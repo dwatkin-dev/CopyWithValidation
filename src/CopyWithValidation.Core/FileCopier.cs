@@ -9,9 +9,9 @@ public class FileCopier(IFileHasher hasher)
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
 
-        string sourceHash = await CopyWithProgressAsync(source, destination, copyProgress);
+        string sourceHash = await CopyWithProgressAsync(source, destination, copyProgress).ConfigureAwait(false);
 
-        return await VerifyAsync(sourceHash, destination, verifyProgress);
+        return await VerifyWithProgressAsync(sourceHash, destination, verifyProgress).ConfigureAwait(false);
     }
 
     private async Task<string> CopyWithProgressAsync(string source, string destination, IProgress<double>? progress)
@@ -34,10 +34,10 @@ public class FileCopier(IFileHasher hasher)
 
         while (true)
         {
-            int read = await input.ReadAsync(buffer);
+            int read = await input.ReadAsync(buffer).ConfigureAwait(false);
             if (read == 0) break;
 
-            await output.WriteAsync(buffer.AsMemory(0, read));
+            await output.WriteAsync(buffer.AsMemory(0, read)).ConfigureAwait(false);
             hash.AppendData(buffer, 0, read);
 
             totalRead += read;
@@ -47,6 +47,6 @@ public class FileCopier(IFileHasher hasher)
         return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
-    private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress) 
-        => sourceHash == await hasher.ComputeHashAsync(destination, progress);
+    private async Task<bool> VerifyWithProgressAsync(string sourceHash, string destination, IProgress<double>? progress) 
+        => sourceHash == await hasher.ComputeHashAsync(destination, progress).ConfigureAwait(false);
 }
