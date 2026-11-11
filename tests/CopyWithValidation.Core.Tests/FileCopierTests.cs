@@ -80,7 +80,7 @@ public class FileCopierTests
     }
 
     [Fact]
-    public async Task CopyAndVerifyAsync_MultiBufferFile_ReportsIncreasingProgress()
+    public async Task CopyAndVerifyAsync_MultiBufferFile_ReportsProgressInOrder()
     {
         // Arrange
         using var files = new TempFiles();
@@ -93,8 +93,11 @@ public class FileCopierTests
         var percents = progress.Values.Select(r => r.Percent).ToList();
 
         // Assert
+        var sorted = progress.Values
+            .OrderBy(r => r.Phase)     // Copying before Verifying
+            .ThenBy(r => r.Percent);   // then low to high within each phase
         Assert.True(percents.Count > 1);
-        Assert.Equal(percents.Order(), percents);   // LINQ: sorted copy
+        Assert.Equal(sorted, progress.Values);   // LINQ: sorted copy
     }
 
     [Fact]
@@ -133,5 +136,21 @@ public class FileCopierTests
         await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
 
         Assert.Equal(CopyPhase.Copying, progress.Values[0].Phase);
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_AnyFile_LastReportIsVerifying100()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(1024);
+        var progress = new RecordingProgress<CopyProgress>();
+        var copier = new FileCopier(new FileHasher());
+
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
+
+        // Assert
+        Assert.Equal(new CopyProgress(CopyPhase.Verifying, 100), progress.Values.Last());
     }
 }

@@ -6,11 +6,12 @@ public class FileCopier(IFileHasher hasher)
 {
     public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null)
     {
-        var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent))); 
+        var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
+        var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
 
         string sourceHash = await CopyWithProgressAsync(source, destination, copyProgress);
 
-        return await VerifyAsync(sourceHash, destination);
+        return await VerifyAsync(sourceHash, destination, verifyProgress);
     }
 
     private async Task<string> CopyWithProgressAsync(string source, string destination, IProgress<double>? progress)
@@ -46,6 +47,6 @@ public class FileCopier(IFileHasher hasher)
         return Convert.ToHexStringLower(hash.GetHashAndReset());
     }
 
-    private async Task<bool> VerifyAsync(string sourceHash, string destination) 
-        => sourceHash == await hasher.ComputeHashAsync(destination);
+    private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress) 
+        => sourceHash == await hasher.ComputeHashAsync(destination, progress);
 }
