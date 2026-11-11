@@ -6,7 +6,9 @@ public class FileCopier(IFileHasher hasher)
 {
     public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null)
     {
-        string sourceHash = await CopyWithProgressAsync(source, destination, null);
+        var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent))); 
+
+        string sourceHash = await CopyWithProgressAsync(source, destination, copyProgress);
 
         return await VerifyAsync(sourceHash, destination);
     }
