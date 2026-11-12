@@ -10,6 +10,8 @@ internal static class StreamHasher
 
         long totalBytes = input.Length;
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Empty input: the caller still needs to see 100%
         if (totalBytes == 0)
         {

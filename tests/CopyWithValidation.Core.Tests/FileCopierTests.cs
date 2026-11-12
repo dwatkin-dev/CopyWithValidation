@@ -137,12 +137,14 @@ public class FileCopierTests
         Assert.Equal(new CopyProgress(CopyPhase.Verifying, 100), progress.Values.Last());
     }
 
-    [Fact]
-    public async Task CopyAndVerifyAsync_AlreadyCancelled_ThrowsAndLeavesNoDestination()
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    public async Task CopyAndVerifyAsync_AlreadyCancelled_ThrowsAndLeavesNoDestination(int size)
     {
         // Arrange
         using var files = new TempFiles();
-        files.WriteSource(5);
+        files.WriteSource(size);
         var copier = new FileCopier(new FileHasher());
         var token = new CancellationToken(canceled: true);
 
