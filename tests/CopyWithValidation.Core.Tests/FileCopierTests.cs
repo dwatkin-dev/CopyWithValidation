@@ -174,4 +174,38 @@ public class FileCopierTests
             () => copier.CopyAndVerifyAsync(files.Source, files.Destination, progress, cts.Token));
         Assert.False(File.Exists(files.Destination));
     }
+
+    [Fact]
+    public async Task AnyFile_DestinationKeepsSourceLastWriteTime()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        var expected = new DateTime(2020, 1, 2, 3, 4, 6, DateTimeKind.Utc);
+        File.SetLastWriteTimeUtc(files.Source, expected);
+        var copier = new FileCopier(new FileHasher());
+
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination);
+
+        // Assert
+        Assert.Equal(expected, File.GetLastWriteTimeUtc(files.Destination));
+    }
+
+    [Fact]
+    public async Task AnyFile_DestinationKeepsSourceCreationTime()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        var expected = new DateTime(2020, 1, 2, 3, 4, 6, DateTimeKind.Utc);
+        File.SetCreationTimeUtc(files.Source, expected);
+        var copier = new FileCopier(new FileHasher());
+
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination);
+
+        // Assert
+        Assert.Equal(expected, File.GetCreationTimeUtc(files.Destination));
+    }
 }

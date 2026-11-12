@@ -9,6 +9,9 @@ public class FileCopier(IFileHasher hasher)
         try
         {
             string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
+
+            CopyTimestamps(source, destination);
+
             return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -28,4 +31,10 @@ public class FileCopier(IFileHasher hasher)
 
     private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress, CancellationToken cancellationToken) 
         => sourceHash == await hasher.ComputeHashAsync(destination, progress, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+    private static void CopyTimestamps(string source, string destination)
+    {
+        File.SetCreationTimeUtc(destination, File.GetCreationTimeUtc(source));
+        File.SetLastWriteTimeUtc(destination, File.GetLastWriteTimeUtc(source));
+    }
 }
