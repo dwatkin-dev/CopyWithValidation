@@ -2,5 +2,5 @@
 
 public class WrongHashFakeHasher : IFileHasher
 {
-    public Task<string> ComputeHashAsync(string path, IProgress<double>? progress = null) => Task.FromResult("not-a-real-hash");
+    public Task<string> ComputeHashAsync(string path, IProgress<double>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult("not-a-real-hash");
 }

@@ -2,24 +2,24 @@
 
 public class FileCopier(IFileHasher hasher)
 {
-    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null)
+    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
 
-        string sourceHash = await CopyAsync(source, destination, copyProgress).ConfigureAwait(false);
+        string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
 
-        return await VerifyAsync(sourceHash, destination, verifyProgress).ConfigureAwait(false);
+        return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<string> CopyAsync(string source, string destination, IProgress<double>? progress)
+    private async Task<string> CopyAsync(string source, string destination, IProgress<double>? progress, CancellationToken cancellationToken)
     {
         await using FileStream input = File.OpenRead(source);
         await using FileStream output = new(destination, FileMode.CreateNew);
 
-        return await StreamHasher.HashAsync(input, progress, copyTo: output).ConfigureAwait(false);
+        return await StreamHasher.HashAsync(input, progress, copyTo: output, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress) 
-        => sourceHash == await hasher.ComputeHashAsync(destination, progress).ConfigureAwait(false);
+    private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress, CancellationToken cancellationToken) 
+        => sourceHash == await hasher.ComputeHashAsync(destination, progress, cancellationToken: cancellationToken).ConfigureAwait(false);
 }
