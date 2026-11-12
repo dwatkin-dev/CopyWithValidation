@@ -94,7 +94,7 @@ public class FileCopierTests
     }
 
     [Fact]
-    public async Task CopyAndVerifyAsync_SourceMissing_ThrowsFileNotFoundException()
+    public async Task CopyAndVerifyAsync_SourceMissing_ThrowsAndLeavesNoDestination()
     {
         // Arrange
         using var files = new TempFiles();   // WriteSource not called, so no source file
@@ -207,5 +207,19 @@ public class FileCopierTests
 
         // Assert
         Assert.Equal(expected, File.GetCreationTimeUtc(files.Destination));
+    }
+
+    [Fact]
+    public async Task VerifyFails_ThrowsAndLeavesNoDestination()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        var copier = new FileCopier(new ThrowingFakeHasher());
+
+        // Act + Assert
+        await Assert.ThrowsAsync<IOException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+        Assert.False(File.Exists(files.Destination));
     }
 }

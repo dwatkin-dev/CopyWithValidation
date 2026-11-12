@@ -6,25 +6,31 @@ public class FileCopier(IFileHasher hasher)
     {
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
+        FileStream output = new(destination, FileMode.CreateNew);
+
         try
         {
-            string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
+            string sourceHash;
+
+            await using (output)
+            {
+                sourceHash = await CopyAsync(source, output, copyProgress, cancellationToken).ConfigureAwait(false);
+            }
 
             CopyTimestamps(source, destination);
 
             return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
+        catch (Exception)
         {
             File.Delete(destination);
             throw;
         }
     }
 
-    private async Task<string> CopyAsync(string source, string destination, IProgress<double>? progress, CancellationToken cancellationToken)
+    private async Task<string> CopyAsync(string source, Stream output, IProgress<double>? progress, CancellationToken cancellationToken)
     {
         await using FileStream input = File.OpenRead(source);
-        await using FileStream output = new(destination, FileMode.CreateNew);
 
         return await StreamHasher.HashAsync(input, progress, copyTo: output, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
