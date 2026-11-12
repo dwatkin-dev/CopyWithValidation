@@ -4,11 +4,13 @@ namespace CopyWithValidation.Core;
 
 internal static class StreamHasher
 {
-    public static async Task<string> HashAsync(Stream input, IProgress<double>? progress, Stream? copyTo = null)
+    public static async Task<string> HashAsync(Stream input, IProgress<double>? progress, Stream? copyTo = null, CancellationToken cancellationToken = default)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
         long totalBytes = input.Length;
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         // Empty input: the caller still needs to see 100%
         if (totalBytes == 0)
@@ -22,10 +24,10 @@ internal static class StreamHasher
 
         while (true)
         {
-            int read = await input.ReadAsync(buffer).ConfigureAwait(false);
+            int read = await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
             if (read == 0) break;
 
-            if (copyTo != null) await copyTo.WriteAsync(buffer.AsMemory(0, read)).ConfigureAwait(false);
+            if (copyTo != null) await copyTo.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
             hash.AppendData(buffer, 0, read);
 
             totalRead += read;

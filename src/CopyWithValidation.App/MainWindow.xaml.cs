@@ -12,6 +12,9 @@ public partial class MainWindow : Window
 {
     // Sets the FileCopier and its chosen FileHasher
     private readonly FileCopier _copier = new FileCopier(new FileHasher());
+
+    private CancellationTokenSource? _cts;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -60,11 +63,16 @@ public partial class MainWindow : Window
         });
 
         EnableUI(false);
+        _cts = new CancellationTokenSource();
 
         try
         {
-            bool verified = await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress);
+            bool verified = await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress, _cts.Token);
             ResultTextBlock.Text = verified ? "Copy verified." : "Verification FAILED.";
+        }
+        catch (OperationCanceledException)
+        {
+            ResultTextBlock.Text = "Cancelled.";
         }
         catch (Exception ex)
         {
@@ -73,6 +81,8 @@ public partial class MainWindow : Window
         finally
         {
             EnableUI(true);
+            _cts.Dispose();
+            _cts = null;
         }
     }
 
@@ -81,5 +91,11 @@ public partial class MainWindow : Window
         CopyButton.IsEnabled = enable;
         BrowseSourceButton.IsEnabled = enable;
         BrowseDestinationButton.IsEnabled = enable;
+        CancelButton.IsEnabled = !enable;
+    }
+
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        _cts?.Cancel();
     }
 }

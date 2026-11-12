@@ -136,4 +136,42 @@ public class FileCopierTests
         // Assert
         Assert.Equal(new CopyProgress(CopyPhase.Verifying, 100), progress.Values.Last());
     }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(5)]                        // one partial buffer
+    public async Task CopyAndVerifyAsync_AlreadyCancelled_ThrowsAndLeavesNoDestination(int size)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(size);
+        var copier = new FileCopier(new FileHasher());
+        var token = new CancellationToken(canceled: true);
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination, cancellationToken: token));
+        Assert.False(File.Exists(files.Destination));
+    }
+
+    [Theory]
+    [InlineData(CopyPhase.Copying)]
+    [InlineData(CopyPhase.Verifying)]
+    public async Task CopyAndVerifyAsync_CancelledDuringPhase_ThrowsAndLeavesNoDestination(CopyPhase phase)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(10 * 1024 * 1024);   // 10 MB, several buffers
+        var copier = new FileCopier(new FileHasher());
+        using var cts = new CancellationTokenSource();
+        var progress = new ActionProgress<CopyProgress>(p =>
+        {
+            if (p.Phase == phase) cts.Cancel();
+        });
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination, progress, cts.Token));
+        Assert.False(File.Exists(files.Destination));
+    }
 }
