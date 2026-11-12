@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic.FileIO;
-
-namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core;
 
 public class FileCopier(IFileHasher hasher)
 {
@@ -12,7 +10,6 @@ public class FileCopier(IFileHasher hasher)
         {
             string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
             return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
-
         }
         catch (OperationCanceledException)
         {
