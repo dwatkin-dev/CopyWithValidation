@@ -1,4 +1,6 @@
-﻿namespace CopyWithValidation.Core;
+﻿using Microsoft.VisualBasic.FileIO;
+
+namespace CopyWithValidation.Core;
 
 public class FileCopier(IFileHasher hasher)
 {
@@ -6,10 +8,17 @@ public class FileCopier(IFileHasher hasher)
     {
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
+        try
+        {
+            string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
+            return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
 
-        string sourceHash = await CopyAsync(source, destination, copyProgress, cancellationToken).ConfigureAwait(false);
-
-        return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            File.Delete(destination);
+            throw;
+        }
     }
 
     private async Task<string> CopyAsync(string source, string destination, IProgress<double>? progress, CancellationToken cancellationToken)
