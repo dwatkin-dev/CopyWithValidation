@@ -23,7 +23,7 @@ public class FileCopier(IFileHasher hasher)
         }
         catch (Exception)
         {
-            File.Delete(destination);
+            TryDeleteDestination(destination);
             throw;
         }
     }
@@ -42,5 +42,10 @@ public class FileCopier(IFileHasher hasher)
     {
         File.SetCreationTimeUtc(destination, File.GetCreationTimeUtc(source));
         File.SetLastWriteTimeUtc(destination, File.GetLastWriteTimeUtc(source));
+    }
+
+    private static void TryDeleteDestination(string path)
+    {
+        try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
     }
 }

@@ -222,4 +222,20 @@ public class FileCopierTests
             () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
         Assert.False(File.Exists(files.Destination));
     }
+
+    [Fact]
+    public async Task CleanupFails_ThrowsOriginalException()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        var copier = new FileCopier(new ReadOnlyThenThrowFakeHasher());
+
+        // Act + Assert
+        await Assert.ThrowsAsync<IOException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+
+        // Clear read-only so TempFiles.Dispose can delete it
+        File.SetAttributes(files.Destination, FileAttributes.Normal);
+    }
 }
