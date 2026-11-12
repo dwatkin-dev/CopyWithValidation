@@ -5,9 +5,9 @@ using System.Windows;
 namespace CopyWithValidation.App;
 
 /// <summary>
-/// The application itself. App.xaml sets StartupUri="MainWindow.xaml", so WPF opens that
-/// window on start. Nothing else is needed here yet.
+/// Interaction logic for App.xaml
 /// </summary>
 public partial class App : Application
 {
 }
+

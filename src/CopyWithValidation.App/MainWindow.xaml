@@ -6,9 +6,7 @@
         xmlns:local="clr-namespace:CopyWithValidation.App"
         mc:Ignorable="d"
         Title="Copy With Validation" Height="220" Width="600">
-    <!-- Layout: a Grid of 3 columns x 5 rows. Each control picks its cell with Grid.Row / Grid.Column. -->
     <Grid>
-        <!-- Auto = as wide as its content; * = all the space that is left -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
@@ -22,10 +20,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Row 0: source file.
-             x:Name creates a field of that name in MainWindow.xaml.cs.
-             Click="..." adds that method to the button's Click event.
-             The TextBoxes are disabled: display only, filled in by Browse. -->
+        <!-- Row 0 -->
         <Label 
             Margin="5" 
             Grid.Row="0" 
@@ -79,7 +74,7 @@
             x:Name="CopyButton"
             Click="CopyButton_Click"/>
 
-        <!-- Row 3: progress bar (Value 0 to 100, set from the Progress lambda). ColumnSpan=3 stretches it across all columns. -->
+        <!-- Row 3 -->
         <ProgressBar
             Margin="5"
             Grid.Row="3"
@@ -88,7 +83,7 @@
             Height="20"
             x:Name="CopyProgressBar" />
 
-        <!-- Row 4: status and result messages -->
+        <!-- Row 4 -->
         <TextBlock 
             Margin="5" 
             Grid.Row="4" 
