@@ -9,6 +9,7 @@ public class ByteSizeTests
     [InlineData(1536L, "1.5 KB")]
     [InlineData(1_048_576L, "1 MB")]
     [InlineData(1_610_612_736L, "1.5 GB")]
+    [InlineData(1_125_899_906_842_624L, "1024 TB")]
     public void Format_AnySize_ReturnsReadableText(long bytes, string expected)
     {
         // Arrange 
