@@ -55,9 +55,9 @@ public class FileCopier(IFileHasher hasher)
     private static void EnsureDestinationHasRoom(string source, string destination)
     {
         long fileSize = new FileInfo(source).Length;
-        string? root = Path.GetPathRoot(Path.GetFullPath(destination)) ?? throw new ArgumentException("Destination has no root.", nameof(destination));
+        string root = Path.GetPathRoot(Path.GetFullPath(destination)) ?? throw new ArgumentException("Destination has no root.", nameof(destination));
         DriveInfo drive = new DriveInfo(root);
 
-        DestinationSpace.EnsureFits(fileSize, drive.AvailableFreeSpace, drive.DriveFormat);
+        DestinationSpace.EnsureFits(fileSize, 0 , drive.DriveFormat);
     }
 }
