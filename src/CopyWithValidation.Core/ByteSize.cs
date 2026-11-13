@@ -8,7 +8,7 @@ public static class ByteSize
         double size = bytes;
         int index = 0;
 
-        while (size >= 1024)
+        while (size >= 1024 && index < units.Length)
         {
             size /= 1024;
             index++;

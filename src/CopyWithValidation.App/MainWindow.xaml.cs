@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
-using static System.Net.WebRequestMethods;
 
 namespace CopyWithValidation.App;
 
@@ -77,7 +76,7 @@ public partial class MainWindow : Window
         }
         catch (FileTooLargeForFileSystemException ex)
         {
-            ResultTextBlock.Text = $"The destination is {ex.FileSystem}, which can’t hold files over 4 GB.Use an NTFS or exFAT drive.";
+            ResultTextBlock.Text = $"The destination is {ex.FileSystem}, which can’t hold files over 4 GB. Use an NTFS or exFAT drive.";
         }
         catch (InsufficientSpaceException ex)
         {
