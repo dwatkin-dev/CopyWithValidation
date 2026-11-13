@@ -6,6 +6,9 @@ public class FileCopier(IFileHasher hasher)
     {
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
+
+        EnsureDestinationHasRoom(source, destination);
+
         FileStream output = new(destination, FileMode.CreateNew);
 
         try
@@ -47,5 +50,14 @@ public class FileCopier(IFileHasher hasher)
     private static void TryDeleteDestination(string path)
     {
         try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+    }
+
+    private static void EnsureDestinationHasRoom(string source, string destination)
+    {
+        long fileSize = new FileInfo(source).Length;
+        string root = Path.GetPathRoot(Path.GetFullPath(destination)) ?? throw new ArgumentException("Destination has no root.", nameof(destination));
+        DriveInfo drive = new DriveInfo(root);
+
+        DestinationSpace.EnsureFits(fileSize, drive.AvailableFreeSpace, drive.DriveFormat);
     }
 }
