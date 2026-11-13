@@ -81,7 +81,7 @@ public partial class MainWindow : Window
         }
         catch (InsufficientSpaceException ex)
         {
-            ResultTextBlock.Text = $"Not enough space on the destination: free up {ex.Required - ex.Available: N0} bytes.";
+            ResultTextBlock.Text = $"Not enough space on the destination: free up {ByteSize.Format(ex.Required - ex.Available)}.";
         }
         catch (Exception ex)
         {

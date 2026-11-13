@@ -58,6 +58,6 @@ public class FileCopier(IFileHasher hasher)
         string root = Path.GetPathRoot(Path.GetFullPath(destination)) ?? throw new ArgumentException("Destination has no root.", nameof(destination));
         DriveInfo drive = new DriveInfo(root);
 
-        DestinationSpace.EnsureFits(fileSize, 0 , drive.DriveFormat);
+        DestinationSpace.EnsureFits(fileSize, drive.AvailableFreeSpace, drive.DriveFormat);
     }
 }
