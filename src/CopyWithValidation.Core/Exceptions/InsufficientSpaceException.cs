@@ -1,4 +1,6 @@
-﻿namespace CopyWithValidation.Core;
+﻿using CopyWithValidation.Core.Common;
+
+namespace CopyWithValidation.Core.Exceptions;
 
 public class InsufficientSpaceException(long required, long available)
     : IOException($"Not enough space on the destination: needs {ByteSize.Format(required)}, {ByteSize.Format(available)} free.")

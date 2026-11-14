@@ -1,4 +1,4 @@
-﻿namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core.Common;
 
 public class ActionProgress<T>(Action<T> action) : IProgress<T>
 {

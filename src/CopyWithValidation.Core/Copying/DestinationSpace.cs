@@ -1,5 +1,6 @@
-﻿
-namespace CopyWithValidation.Core;
+﻿using CopyWithValidation.Core.Exceptions;
+
+namespace CopyWithValidation.Core.Copying;
 
 public static class DestinationSpace
 {

@@ -1,4 +1,4 @@
-﻿namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core.Copying;
 
 // Values are in the order the phases happen – tests and saved reports rely on this
 public enum CopyPhase

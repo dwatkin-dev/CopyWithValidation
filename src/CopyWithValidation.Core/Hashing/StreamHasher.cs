@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace CopyWithValidation.Core;
+namespace CopyWithValidation.Core.Hashing;
 
 internal static class StreamHasher
 {

@@ -1,4 +1,6 @@
-﻿namespace CopyWithValidation.Core.Tests;
+﻿using CopyWithValidation.Core.Common;
+
+namespace CopyWithValidation.Core.Tests;
 
 public class ByteSizeTests
 {

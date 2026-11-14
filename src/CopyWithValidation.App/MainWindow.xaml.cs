@@ -1,4 +1,7 @@
-﻿using CopyWithValidation.Core;
+﻿using CopyWithValidation.Core.Common;
+using CopyWithValidation.Core.Copying;
+using CopyWithValidation.Core.Exceptions;
+using CopyWithValidation.Core.Hashing;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
