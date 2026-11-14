@@ -73,13 +73,12 @@ public class FileCopierTests
 
         // Act
         await copier.CopyAndVerifyAsync(files.Source, files.Destination, progress);
-        var percents = progress.Values.Select(r => r.Percent).ToList();
 
         // Assert
         var sorted = progress.Values
             .OrderBy(r => r.Phase)     // Copying before Verifying
             .ThenBy(r => r.Percent);   // then low to high within each phase
-        Assert.True(percents.Count > 1);
+        Assert.True(progress.Values.Count > 1);
         Assert.Equal(sorted, progress.Values);   // LINQ: sorted copy
     }
 
