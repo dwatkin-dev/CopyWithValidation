@@ -1,4 +1,4 @@
-﻿namespace CopyWithValidation.Core;
+﻿namespace CopyWithValidation.Core.Common;
 
 public static class ByteSize
 {

@@ -1,4 +1,7 @@
-﻿namespace CopyWithValidation.Core;
+﻿using CopyWithValidation.Core.Hashing;
+using CopyWithValidation.Core.Common;
+
+namespace CopyWithValidation.Core.Copying;
 
 public class FileCopier(IFileHasher hasher)
 {

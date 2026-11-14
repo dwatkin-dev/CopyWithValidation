@@ -1,4 +1,6 @@
-﻿namespace CopyWithValidation.Core.Tests.Fakes;
+﻿using CopyWithValidation.Core.Hashing;
+
+namespace CopyWithValidation.Core.Tests.Fakes;
 
 public class ThrowingFakeHasher : IFileHasher
 {

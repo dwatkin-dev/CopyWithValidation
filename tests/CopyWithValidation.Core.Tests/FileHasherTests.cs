@@ -1,5 +1,6 @@
 ﻿using CopyWithValidation.Core.Tests.Fakes;
 using CopyWithValidation.Core.Tests.Helpers;
+using CopyWithValidation.Core.Hashing;
 using System.Security.Cryptography;
 
 namespace CopyWithValidation.Core.Tests;

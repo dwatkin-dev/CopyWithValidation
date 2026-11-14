@@ -1,4 +1,7 @@
-﻿namespace CopyWithValidation.Core.Tests;
+﻿using CopyWithValidation.Core.Copying;
+using CopyWithValidation.Core.Exceptions;
+
+namespace CopyWithValidation.Core.Tests;
 
 public class DestinationSpaceTests
 {

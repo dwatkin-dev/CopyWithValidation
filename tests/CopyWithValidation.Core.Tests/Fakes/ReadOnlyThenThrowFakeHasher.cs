@@ -1,4 +1,4 @@
-﻿using CopyWithValidation.Core;
+﻿using CopyWithValidation.Core.Hashing;
 
 public class ReadOnlyThenThrowFakeHasher : IFileHasher
 {
