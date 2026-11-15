@@ -70,8 +70,12 @@ public partial class MainWindow : Window
 
         try
         {
-            bool verified = await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress, _cts.Token);
-            ResultTextBlock.Text = verified ? "Copy verified." : "Verification FAILED.";
+            await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress, _cts.Token);
+            ResultTextBlock.Text = "Copy verified.";
+        }
+        catch (VerificationFailedException ex)
+        {
+            ResultTextBlock.Text = $"Verification failed. Corrupt copy kept as {ex.CorruptFilePath}";
         }
         catch (OperationCanceledException)
         {

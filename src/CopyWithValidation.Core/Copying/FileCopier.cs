@@ -1,11 +1,12 @@
 ﻿using CopyWithValidation.Core.Hashing;
 using CopyWithValidation.Core.Common;
+using CopyWithValidation.Core.Exceptions;
 
 namespace CopyWithValidation.Core.Copying;
 
 public class FileCopier(IFileHasher hasher)
 {
-    public async Task<bool> CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null, CancellationToken cancellationToken = default)
+    public async Task CopyAndVerifyAsync(string source, string destination, IProgress<CopyProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
@@ -25,7 +26,7 @@ public class FileCopier(IFileHasher hasher)
 
             CopyTimestamps(source, destination);
 
-            return await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
+            await VerifyAsync(sourceHash, destination, verifyProgress, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception)
         {
@@ -41,8 +42,16 @@ public class FileCopier(IFileHasher hasher)
         return await StreamHasher.HashAsync(input, progress, copyTo: output, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyAsync(string sourceHash, string destination, IProgress<double>? progress, CancellationToken cancellationToken) 
-        => sourceHash == await hasher.ComputeHashAsync(destination, progress, cancellationToken: cancellationToken).ConfigureAwait(false);
+    private async Task VerifyAsync(string sourceHash, string destination, IProgress<double>? progress, CancellationToken cancellationToken)
+    {
+        string destinationHash = await hasher.ComputeHashAsync(destination, progress, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (sourceHash != destinationHash)
+        {
+            string corruptPath = destination + ".corrupt";
+            File.Move(destination, corruptPath, overwrite: true);
+            throw new VerificationFailedException(sourceHash, destinationHash, corruptPath);
+        }
+    }
 
     private static void CopyTimestamps(string source, string destination)
     {

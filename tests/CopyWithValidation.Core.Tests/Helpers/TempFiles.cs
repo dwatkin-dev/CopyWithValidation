@@ -23,5 +23,6 @@ public class TempFiles : IDisposable
     {
         File.Delete(Source);
         File.Delete(Destination);
+        File.Delete(Destination + ".corrupt");
     }
 }
