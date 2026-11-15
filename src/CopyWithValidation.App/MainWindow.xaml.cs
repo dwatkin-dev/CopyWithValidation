@@ -3,7 +3,6 @@ using CopyWithValidation.Core.Copying;
 using CopyWithValidation.Core.Exceptions;
 using CopyWithValidation.Core.Hashing;
 using Microsoft.Win32;
-using System.IO;
 using System.Windows;
 
 namespace CopyWithValidation.App;
@@ -57,7 +56,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var destinationFilePath = Path.Combine(destinationFolder, Path.GetFileName(source));
+        var destinationFilePath = DestinationPath.Build(source, destinationFolder);
 
         var progress = new Progress<CopyProgress>(p =>
         {
