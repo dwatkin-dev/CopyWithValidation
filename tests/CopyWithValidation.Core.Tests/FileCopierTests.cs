@@ -1,8 +1,10 @@
-﻿using CopyWithValidation.Core.Copying;
+﻿using CopyWithValidation.Core.Common;
+using CopyWithValidation.Core.Copying;
+using CopyWithValidation.Core.Exceptions;
 using CopyWithValidation.Core.Hashing;
-using CopyWithValidation.Core.Common;
 using CopyWithValidation.Core.Tests.Fakes;
 using CopyWithValidation.Core.Tests.Helpers;
+using System.Security.Cryptography;
 
 namespace CopyWithValidation.Core.Tests;
 
@@ -30,7 +32,7 @@ public class FileCopierTests
     [InlineData(0)]                        // empty
     [InlineData(5)]                        // one partial buffer
     [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
-    public async Task CopyAndVerifyAsync_MatchingCopy_ReturnsTrue(int size)
+    public async Task CopyAndVerifyAsync_MatchingCopy_LeavesNoCorruptFile(int size)
     {
         // Arrange
         using var files = new TempFiles();
@@ -38,28 +40,32 @@ public class FileCopierTests
         files.WriteSource(size);
 
         // Act
-        bool result = await copier.CopyAndVerifyAsync(files.Source, files.Destination);
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination);
 
         // Assert
-        Assert.True(result);
+        Assert.False(File.Exists(files.Destination + ".corrupt"));
     }
 
     [Theory]
     [InlineData(0)]                        // empty
     [InlineData(5)]                        // one partial buffer
     [InlineData(1024 * 1024 + 512 * 1024)] // several buffers, partial last
-    public async Task CopyAndVerifyAsync_DestinationHashDiffers_ReturnsFalse(int size)
+    public async Task CopyAndVerifyAsync_DestinationHashDiffers_RenamesToCorrupt(int size)
     {
         // Arrange
         using var files = new TempFiles();
         var copier = new FileCopier(new WrongHashFakeHasher());
         files.WriteSource(size);
+        string corruptPath = files.Destination + ".corrupt";
 
         // Act
-        bool result = await copier.CopyAndVerifyAsync(files.Source, files.Destination);
+        var ex = await Assert.ThrowsAsync<VerificationFailedException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
 
         // Assert
-        Assert.False(result);
+        Assert.Equal(corruptPath, ex.CorruptFilePath);
+        Assert.True(File.Exists(corruptPath));
+        Assert.False(File.Exists(files.Destination));
     }
 
     [Fact]
@@ -239,5 +245,41 @@ public class FileCopierTests
 
         // Clear read-only so TempFiles.Dispose can delete it
         File.SetAttributes(files.Destination, FileAttributes.Normal);
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_DestinationHashDiffers_ExceptionHasBothHashes()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var copier = new FileCopier(new WrongHashFakeHasher());
+        byte[] data = files.WriteSource(5);
+        string expectedSourceHash = Convert.ToHexStringLower(SHA256.HashData(data));   // oracle
+
+        // Act
+        var ex = await Assert.ThrowsAsync<VerificationFailedException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+
+        // Assert
+        Assert.Equal(expectedSourceHash, ex.SourceHash);
+        Assert.Equal("not-a-real-hash", ex.DestinationHash);
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_CorruptFileAlreadyExists_ReplacesIt()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var copier = new FileCopier(new WrongHashFakeHasher());
+        byte[] data = files.WriteSource(5);
+        string corruptPath = files.Destination + ".corrupt";
+        File.WriteAllText(corruptPath, "old");   // left over from an earlier failed run
+
+        // Act
+        await Assert.ThrowsAsync<VerificationFailedException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+
+        // Assert
+        Assert.Equal(data, File.ReadAllBytes(corruptPath));
     }
 }
