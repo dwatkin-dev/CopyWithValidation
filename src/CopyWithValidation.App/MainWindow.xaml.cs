@@ -75,7 +75,7 @@ public partial class MainWindow : Window
         }
         catch (VerificationFailedException ex)
         {
-            ResultTextBlock.Text = $"Verification failed, Corrupt copy saved at {ex.CorruptFilePath}";
+            ResultTextBlock.Text = $"Verification failed. Corrupt copy kept as {ex.CorruptFilePath}";
         }
         catch (OperationCanceledException)
         {
