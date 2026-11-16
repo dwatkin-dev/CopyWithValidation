@@ -72,6 +72,10 @@ public partial class MainWindow : Window
             await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress, _cts.Token);
             ResultTextBlock.Text = "Copy verified.";
         }
+        catch (DestinationExistsException ex)
+        {
+            ResultTextBlock.Text = $"Skipped: {ex.FilePath} already exists.";
+        }
         catch (VerificationFailedException ex)
         {
             ResultTextBlock.Text = $"Verification failed. Corrupt copy kept as {ex.CorruptFilePath}";
