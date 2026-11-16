@@ -11,6 +11,7 @@ public class FileCopier(IFileHasher hasher)
         var copyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Copying, percent)));
         var verifyProgress = new ActionProgress<double>(percent => progress?.Report(new CopyProgress(CopyPhase.Verifying, percent)));
 
+        if (File.Exists(destination)) throw new DestinationExistsException(destination);
         EnsureDestinationHasRoom(source, destination);
 
         FileStream output = new(destination, FileMode.CreateNew);

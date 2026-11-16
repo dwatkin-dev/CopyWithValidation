@@ -89,19 +89,6 @@ public class FileCopierTests
     }
 
     [Fact]
-    public async Task CopyAndVerifyAsync_DestinationExists_ThrowsIOException()
-    {
-        // Arrange
-        using var files = new TempFiles();
-        var copier = new FileCopier(new FileHasher());
-        files.WriteSource(5);
-        File.WriteAllText(files.Destination, "");   // destination already exists
-
-        // Act & Assert
-        await Assert.ThrowsAsync<IOException>(() => copier.CopyAndVerifyAsync(files.Source, files.Destination));
-    }
-
-    [Fact]
     public async Task CopyAndVerifyAsync_SourceMissing_ThrowsAndLeavesNoDestination()
     {
         // Arrange
@@ -281,5 +268,23 @@ public class FileCopierTests
 
         // Assert
         Assert.Equal(data, File.ReadAllBytes(corruptPath));
+    }
+
+    [Fact]
+    public async Task CopyAndVerifyAsync_DestinationExists_ThrowsAndLeavesFileUntouched()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        File.WriteAllText(files.Source, "new content");
+        File.WriteAllText(files.Destination, "user's original file");
+        var copier = new FileCopier(new FileHasher());
+
+        // Act
+        var ex = await Assert.ThrowsAsync<DestinationExistsException>(
+            () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+
+        // Assert
+        Assert.Equal(files.Destination, ex.FilePath);
+        Assert.Equal("user's original file", File.ReadAllText(files.Destination));
     }
 }
