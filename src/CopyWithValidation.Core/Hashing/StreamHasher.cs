@@ -6,9 +6,10 @@ namespace CopyWithValidation.Core.Hashing;
 internal static class StreamHasher
 {
     private const int BufferSize = 1024 * 1024;
+
     private const int Alignment = 4096;
     public static async Task<string> HashAsync(Stream input, IProgress<double>? progress, Stream? copyTo = null, CancellationToken cancellationToken = default)
-    { 
+    {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
         long totalBytes = input.Length;
