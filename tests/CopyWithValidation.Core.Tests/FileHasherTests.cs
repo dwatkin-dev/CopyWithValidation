@@ -86,4 +86,27 @@ public class FileHasherTests
         // Act & Assert
         await Assert.ThrowsAsync<FileNotFoundException>(() => hasher.ComputeHashAsync(files.Source));
     }
+
+    [Theory]
+    [InlineData(0)]                        // empty
+    [InlineData(1)]                        // much less than one sector
+    [InlineData(4095)]                     // one byte short of a sector
+    [InlineData(4096)]                     // exactly one sector
+    [InlineData(4097)]                     // one byte more than a sector
+    [InlineData(1024 * 1024 + 1)]          // one full buffer plus a 1-byte tail
+
+    public async Task ComputeHashAsync_BypassCacheAnySize_MatchesSha256OfContents(int size)
+    {
+        // Arrange
+        using var files = new TempFiles();
+        var hasher = new FileHasher(bypassCache: true);
+        byte[] data = files.WriteSource(size);
+        string expected = Convert.ToHexStringLower(SHA256.HashData(data));
+
+        // Act
+        string hash = await hasher.ComputeHashAsync(files.Source);
+
+        // Assert
+        Assert.Equal(expected, hash);
+    }
 }
