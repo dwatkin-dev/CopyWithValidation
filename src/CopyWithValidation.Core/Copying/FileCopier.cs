@@ -23,6 +23,7 @@ public class FileCopier(IFileHasher hasher)
             await using (output)
             {
                 sourceHash = await CopyAsync(source, output, copyProgress, cancellationToken).ConfigureAwait(false);
+                output.Flush(flushToDisk: true);
             }
 
             CopyTimestamps(source, destination);

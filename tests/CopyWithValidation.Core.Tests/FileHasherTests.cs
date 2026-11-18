@@ -94,7 +94,6 @@ public class FileHasherTests
     [InlineData(4096)]                     // exactly one sector
     [InlineData(4097)]                     // one byte more than a sector
     [InlineData(1024 * 1024 + 1)]          // one full buffer plus a 1-byte tail
-
     public async Task ComputeHashAsync_BypassCacheAnySize_MatchesSha256OfContents(int size)
     {
         // Arrange
