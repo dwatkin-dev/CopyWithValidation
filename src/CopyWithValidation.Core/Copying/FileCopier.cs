@@ -35,6 +35,15 @@ public class FileCopier(IFileHasher hasher)
             TryDeleteDestination(destination);
             throw;
         }
+
+        try
+        {
+            CopyAttributes(source, destination);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new AttributesNotCopiedException(destination, ex);
+        }
     }
 
     private async Task<string> CopyAsync(string source, Stream output, IProgress<double>? progress, CancellationToken cancellationToken)
@@ -73,5 +82,10 @@ public class FileCopier(IFileHasher hasher)
         DriveInfo drive = new DriveInfo(root);
 
         DestinationSpace.EnsureFits(fileSize, drive.AvailableFreeSpace, drive.DriveFormat);
+    }
+
+    private static void CopyAttributes(string source, string destination)
+    {
+        File.SetAttributes(destination, File.GetAttributes(source));
     }
 }
