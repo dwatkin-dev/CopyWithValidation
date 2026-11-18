@@ -13,7 +13,7 @@ namespace CopyWithValidation.App;
 public partial class MainWindow : Window
 {
     // Sets the FileCopier and its chosen FileHasher
-    private readonly FileCopier _copier = new FileCopier(new FileHasher());
+    private readonly FileCopier _copier = new FileCopier(new FileHasher(bypassCache: true));
 
     private CancellationTokenSource? _cts;
 
