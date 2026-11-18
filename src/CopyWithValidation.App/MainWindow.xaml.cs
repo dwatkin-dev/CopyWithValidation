@@ -74,7 +74,7 @@ public partial class MainWindow : Window
         }
         catch (AttributesNotCopiedException ex)
         {
-            ResultTextBlock.Text = ex.Message;
+            ResultTextBlock.Text = $"Copy verified, but attributes couldn't be set on {ex.FilePath}: {ex.InnerException?.Message}";
         }
         catch (DestinationExistsException ex)
         {
