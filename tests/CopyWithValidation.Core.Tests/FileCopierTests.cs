@@ -287,4 +287,46 @@ public class FileCopierTests
         Assert.Equal(files.Destination, ex.FilePath);
         Assert.Equal("user's original file", File.ReadAllText(files.Destination));
     }
+
+    [Fact]
+    public async Task AnyFile_DestinationKeepsSourceAttributes()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        File.SetAttributes(files.Source, FileAttributes.Hidden);
+        var copier = new FileCopier(new FileHasher());
+
+        // Act
+        await copier.CopyAndVerifyAsync(files.Source, files.Destination);
+
+        // Assert
+        Assert.True(File.GetAttributes(files.Destination).HasFlag(FileAttributes.Hidden));
+    }
+
+    [Fact]
+    public async Task VerifyFails_CorruptFileIsNotReadOnly()
+    {
+        // Arrange
+        using var files = new TempFiles();
+        files.WriteSource(5);
+        File.SetAttributes(files.Source, FileAttributes.ReadOnly);
+        var copier = new FileCopier(new WrongHashFakeHasher());
+        string corruptPath = files.Destination + ".corrupt";
+
+        try
+        {
+            // Act
+            await Assert.ThrowsAsync<VerificationFailedException>(
+                () => copier.CopyAndVerifyAsync(files.Source, files.Destination));
+
+            // Assert
+            Assert.False(File.GetAttributes(corruptPath).HasFlag(FileAttributes.ReadOnly));
+        }
+        finally
+        {
+            // Clean up
+            File.SetAttributes(files.Source, FileAttributes.Normal);
+        }
+    }
 }

@@ -72,6 +72,10 @@ public partial class MainWindow : Window
             await _copier.CopyAndVerifyAsync(source, destinationFilePath, progress, _cts.Token);
             ResultTextBlock.Text = "Copy verified.";
         }
+        catch (AttributesNotCopiedException ex)
+        {
+            ResultTextBlock.Text = $"Copy verified, but attributes couldn't be set on {ex.FilePath}: {ex.InnerException?.Message}";
+        }
         catch (DestinationExistsException ex)
         {
             ResultTextBlock.Text = $"Skipped: {ex.FilePath} already exists.";
