@@ -2,8 +2,10 @@
   <Folder Name="/src/">
     <Project Path="src/CopyWithValidation.App/CopyWithValidation.App.csproj" />
     <Project Path="src/CopyWithValidation.Core/CopyWithValidation.Core.csproj" />
+    <Project Path="src/CopyWithValidation.ViewModels/CopyWithValidation.ViewModels.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CopyWithValidation.Core.Tests/CopyWithValidation.Core.Tests.csproj" />
+    <Project Path="tests/CopyWithValidation.ViewModels.Tests/CopyWithValidation.ViewModels.Tests.csproj" />
   </Folder>
 </Solution>
