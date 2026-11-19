@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CopyWithValidation.Core\CopyWithValidation.Core.csproj" />
+    <ProjectReference Include="..\CopyWithValidation.ViewModels\CopyWithValidation.ViewModels.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
